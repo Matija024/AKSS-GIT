@@ -1,0 +1,45 @@
+\documentclass[sigconf]{acmart}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\usepackage{graphicx}
+\bibliographystyle{plain}
+\title{What is the Title?}
+\author{Matija Roncevic}
+\email{matija.roncevic@fau.de}
+\affiliation{
+    \institution{Friedricht-Alexander-Universität Erlangen-Nürnberg}
+    \country{}}
+\makeatletter
+
+\let\@authorsaddresses\@empty 
+\makeatother
+\pagestyle{plain}
+\settopmatter{printacmref=false}
+\settopmatter{printfolios=false}
+
+\setlength{\parindent}{0pt} %%stoppt die Einrückung
+
+\begin{document}
+
+\maketitle  % Dieser Befehl erzeugt den Titel, Autor und Datum im Dokument
+
+%%Für die Seitennummerierung
+\thispagestyle{plain} %%damit auch die erste seite eine 1 hat
+\pagenumbering{arabic}
+\pagestyle{plain} %%???
+
+\input{0-Abstract.tex}
+
+\section{Introduction}
+\input{1-Introduction.tex}
+
+\section{Background}
+\input{2-Background.tex}
+
+\section{Body}
+\input{3-Body.tex}
+
+\section{Conclusion}
+\input{4-Conclusion.tex}
+
+
+\end{document}
