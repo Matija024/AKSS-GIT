@@ -1,0 +1,20 @@
+This section will introduce two ways to mitigate forking attacks. Each method has its own implementations for tackling the challenges, thereby bringing advantages, disadvantages, and preferable fields of application.
+
+\subsection{The Blockchain approach - Narrator-Pro}
+
+This system relies on an external blockchain and can be broken down to three main concepts which combined yield in its prevention of attacks. In more detail the goals can be described as:
+\begin{itemize}
+    \item Security - The ~safety~ and ~liveness~ properties of the TEE programms will be protected.
+    \item Performance -  While providing the Security Goals there will be no decisive detriment of performance. In detail low latency for state updates and read operations, high throughput for provessing enclae program requests and unlimited state updates, provided by the blockchain. //Check thruthness
+\end{itemize} 
+Before getting into what these concepts look like //different wording// it is essential to give an overview on the system so the coherences will be clear.
+
+Several SGX enabled maschines are running in a cloud. These maschines can run a number (limited by specifications of the system) of enclaves which are devided into two groups of Application Enclaves (AEs) and State Enclaves (SEs). AEs have applications running, handle client requests and return outputs corresponding to its inputs. SEs on the other hand contain the Narrator-Pro software and are responsible to provide state continuity to AEs. This is accomplished by a connection from the AE to a lokaly running SE, where the AE can use SEs Narrator-Pro libraries to seal data. This data is then used to retrieve the latest sealed state. This priciple is expained in more detail in section .... -Figure 1- provides an overview of the mentioned components.
+
+The main concepts which constitute in the reliance of Narrator-Pro are (1) system initialization §..., (2) state update and read protocols for AEs §... and (3) restart protocols in regard to AEs and SEs §....
+
+Before explaining these protocols we want to state a few ...(premises) which Narrator-Pro does. 
+\begin{itemize}
+    \item Denial of Service Attacks - It is not the goal to prevent systems from these kinds of attacks. Since TEEs themselves do not have preventing measures includet. 
+    \item Hardware - The implementation of Narrator-Pro should neader require any hardware changes nor will there be a need of specific hardware if the cloud TEE is already running. 
+\end{itemize} 

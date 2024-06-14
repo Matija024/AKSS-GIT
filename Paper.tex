@@ -1,13 +1,13 @@
 \documentclass[sigconf]{acmart}
 \renewcommand\footnotetextcopyrightpermission[1]{}
 \usepackage{graphicx}
-\bibliographystyle{plain}
 \title{Forking Attacks: Two Ways, No Worries}
 \author{Matija Roncevic}
 \email{matija.roncevic@fau.de}
 \affiliation{
     \institution{Friedricht-Alexander-Universität Erlangen-Nürnberg}
-    \country{}}
+    \country{}
+    \city{}}
 \makeatletter
 
 \let\@authorsaddresses\@empty 
@@ -15,9 +15,10 @@
 \pagestyle{plain}
 \settopmatter{printacmref=false}
 \settopmatter{printfolios=false}
+\bibliographystyle{plain}
 
 \setlength{\parindent}{0pt} %%stoppt die Einrückung
-
+     
 \begin{document}
 
 \maketitle  % Dieser Befehl erzeugt den Titel, Autor und Datum im Dokument
@@ -41,8 +42,6 @@
 \section{Conclusion}
 \input{4-Conclusion.tex}
 
-\section{References}
-\input{10-References.tex}
-
+\bibliography{Ref.bib}
 
 \end{document}

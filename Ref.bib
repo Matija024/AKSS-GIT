@@ -1,0 +1,28 @@
+@InProceedings{nfw,
+  author    = {Briongos, Samira and Karame, Ghassan and Soriente, Claudio and Wilde, Annika},
+  booktitle = {Proceedings of the 39th Annual Computer Security Applications Conference},
+  title     = {No Forking Way: Detecting Cloning Attacks on Intel SGX Applications},
+  year      = {2023},
+  address   = {New York, NY, USA},
+  publisher = {Association for Computing Machinery},
+  series    = {ACSAC '23},
+  abstract  = {Forking attacks against TEEs like Intel SGX can be carried out either by rolling back the application to a previous state, or by cloning the application and by partitioning its inputs across the cloned instances. Current solutions to forking attacks require Trusted Third Parties (TTP) that are hard to find in real-world deployments. In the absence of a TTP, many TEE applications rely on monotonic counters to mitigate forking attacks based on rollbacks; however, they have no protection mechanism against forking attack based on cloning. In this paper, we analyze 72 SGX applications and show that approximately 20\% of those are vulnerable to forking attacks based on cloning—including those that rely on monotonic counters. To address this problem, we present CloneBuster, the first practical clone-detection mechanism for Intel SGX that does not rely on a TTP and, as such, can be used directly to protect existing applications. CloneBuster allows enclaves to (self-) detect whether another enclave with the same binary is running on the same platform. To do so, CloneBuster relies on a cache-based covert channel for enclaves to signal their presence to (and detect the presence of) clones on the same machine. We show that CloneBuster is robust despite a malicious OS, only incurs a marginal impact on the application performance, and adds approximately 800 LoC to the TCB. When used in conjunction with monotonic counters, CloneBuster allows applications to benefit from a comprehensive protection against forking attacks.},
+  doi       = {10.1145/3627106.3627187},
+  isbn      = {9798400708862},
+  keywords  = {Cloning Attacks, Intel SGX, Trusted Execution Environments},
+  location  = {<conf-loc>, <city>Austin</city>, <state>TX</state>, <country>USA</country>, </conf-loc>},
+  numpages  = {15},
+  url       = {https://doi.org/10.1145/3627106.3627187},
+}
+
+@Article{esccc,
+  author   = {Peng, Wei and Li, Xiang and Niu, Jianyu and Zhang, Xiaokuan and Zhang, Yinqian},
+  journal  = {IEEE Transactions on Dependable and Secure Computing},
+  title    = {Ensuring State Continuity for Confidential Computing: A Blockchain-based Approach},
+  year     = {2024},
+  pages    = {1-14},
+  doi      = {10.1109/TDSC.2024.3381973},
+  keywords = {Codes;Protocols;Cloud computing;Consensus protocol;Computer crashes;Wide area networks;Operating systems;Trusted Execution Environment;State continuity;blockchain;forking attack;rollback attack},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}
