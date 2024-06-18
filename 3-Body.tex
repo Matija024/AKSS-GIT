@@ -1,20 +1,41 @@
-This section will introduce two ways to mitigate forking attacks. Each method has its own implementations for tackling the challenges, thereby bringing advantages, disadvantages, and preferable fields of application.
+ 
+ This section will introduce two ways to mitigate forking attacks. Each method has its own implementations for tackling the challenges, thereby bringing advantages, disadvantages, and preferable fields of application.
 
 \subsection{The Blockchain approach - Narrator-Pro}
 
-This system relies on an external blockchain and can be broken down to three main concepts which combined yield in its prevention of attacks. In more detail the goals can be described as:
+This system relies on an external blockchain to initialize certain components. The system itself can be broken down to three main concepts which combined yield in its prevention of attacks.The goals which are ensured are described as:
 \begin{itemize}
-    \item Security - The ~safety~ and ~liveness~ properties of the TEE programms will be protected.
+    \item Security - The ~safety~ and ~liveness~ properties of the TEE programms will be protected/guranteed.
     \item Performance -  While providing the Security Goals there will be no decisive detriment of performance. In detail low latency for state updates and read operations, high throughput for provessing enclae program requests and unlimited state updates, provided by the blockchain. //Check thruthness
 \end{itemize} 
-Before getting into what these concepts look like //different wording// it is essential to give an overview on the system so the coherences will be clear.
+Before getting into the concepts involed, it is essential to give an overview on the system so the coherences will be clear.
 
-Several SGX enabled maschines are running in a cloud. These maschines can run a number (limited by specifications of the system) of enclaves which are devided into two groups of Application Enclaves (AEs) and State Enclaves (SEs). AEs have applications running, handle client requests and return outputs corresponding to its inputs. SEs on the other hand contain the Narrator-Pro software and are responsible to provide state continuity to AEs. This is accomplished by a connection from the AE to a lokaly running SE, where the AE can use SEs Narrator-Pro libraries to seal data. This data is then used to retrieve the latest sealed state. This priciple is expained in more detail in section .... -Figure 1- provides an overview of the mentioned components.
+Several SGX enabled maschines are running in a cloud. These maschines can run a number (limited by specifications of the system) of enclaves which are devided into two groups of Application Enclaves (AEs) and State Enclaves (SEs). AEs have applications running, handle client requests and return outputs corresponding to its inputs. SEs on the other hand contain the Narrator-Pro software and are responsible to provide state continuity to AEs. This is accomplished by a secure connection from the AE to a lokaly running SE, where the AE can use SEs Narrator-Pro libraries to seal data. This data is then used to retrieve the latest sealed state, in case of unexpected shut downs. This priciple is expained in more detail in section .... -Figure 1- provides an overview of the mentioned components.
+
+The creators also state a few ...(premises) which Narrator-Pro does. 
+\begin{itemize}
+    \item \textbf{Denial of Service Attacks} - It is not the goal to prevent systems from these kinds of attacks. Since TEEs themselves do not have preventing measures includet. 
+    \item \textbf{Hardware} - The implementation of Narrator-Pro should neader require any hardware changes nor will there be a need of specific hardware if the cloud TEE is already running. 
+    \item \textbf{No Trusted Central Party}
+\end{itemize} 
 
 The main concepts which constitute in the reliance of Narrator-Pro are (1) system initialization §..., (2) state update and read protocols for AEs §... and (3) restart protocols in regard to AEs and SEs §....
 
-Before explaining these protocols we want to state a few ...(premises) which Narrator-Pro does. 
-\begin{itemize}
-    \item Denial of Service Attacks - It is not the goal to prevent systems from these kinds of attacks. Since TEEs themselves do not have preventing measures includet. 
-    \item Hardware - The implementation of Narrator-Pro should neader require any hardware changes nor will there be a need of specific hardware if the cloud TEE is already running. 
-\end{itemize} 
+\subsubsection{System Initialization}
+
+Befor the system can proceed with its actual work //different Word//, it is essential to initialize the SEs. Any adversaries will not be able to launch SEs with the same binary on different channels to get stale states. This is accomplished by the usage of an blockchain \textit{B}. 
+
+The blockchain \textit{B} serves to store key-value tuples containing <\textit{key}, \textit{value}>. The \textit{value} is a random string linked to the \textit{key}, which will be returned by the blockchain in future read-calls. 
+//However to verify the recieved \textit{value}, \textit{B} proviedes an authenticator \textit{a} in the initialization process.The second ecation, where an authenticator \textit{a} is returned, is while initialization//Important??// 
+However the, before mentioned, initialization process of SEs is carried out while the first wirte-call from a SE to \textit{B} is established. \textit{B} will verify that no other SE has registered on the blockchain with the provided \textit{key}. If this is the case the write-call will be executed and the client will recieve an authenticator \textit{a}, whit which he can verify the operation. This summerices the initialization responsiblities of \textit{B}.
+
+The SE on the other hand, has to go through additional steps to finish its initialization. Therefore it is important to mention that SEs connect in groups to carry out requests delivered by AEs. Every group has an SE leader which is responsible to store certain information about the group. So if a SE wants to initialize it firstly lets the leader establish an secure connection to it self. This connection channel spreads thorugh the whole group so the participents can talk to each other. After the channel is in place, the initilazing SE creates an key-pair (which will be used in future connection establishments with this SE), sends it to the leader and it will be collected and stored in a list which is accesseble for every SE in the group. After that the before mentioned blockchain interaction takes place where the SE performs a read-call to \textit{B} and eather recieves the \textit{value} conatining \textit{Null} (stating that no other SE has already linked to it with this \textit{key}) and the initialization succeeds or the SE terminates its initialization process. Subsequently the first write-call will be executed where the SE stores its <\textit{key}, \textit{value}> tuple and only then it can proceed processing the AEs request.
+
+\subsubsection{State Update and Read}
+
+To prevent eavs droping from adversaries, messages between AEs and SEs are transmitted over encrypted channels, using secret session keys. An AE will use an aforementioned group of SEs to confirm its current state \(S_i\), before proceeding with input \(I_i\) to update to \(S_{i+1}\). A nonce (Number used once) is send as well to prevent replays. The following paragraphs will explain this procedur further (\(SD_{i}\) is a summary of the latest states):
+
+\begin{enumerate}
+    \item After recieving \(I_i\) from an user, the AE saves an state snapshot <\(S_i\), \(I_i\), \(SD_{i-1}\)> on the disk, in case the process crashes midway, so the current input/state can be retrieved. The AEs next step is to call the funktion (\textbf{writeState(\(SD_i\))} -> ACK) and wait for the returning ACK from the SE, to proceed with the state update.
+    \item With calling the \textbf{writeState()} function, the SE saves an snapshot of its own states, containing <\(S_j\), \(I_j\), \(SD_j\)> with \(I_j\) = \(SD_{i}\). Upon a successfull save, the SE starts communicating with its group by 
+\end{enumerate}
