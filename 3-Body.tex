@@ -16,7 +16,8 @@ The creators also state a few ...(premises) which Narrator-Pro does.
 \begin{itemize}
     \item \textbf{Denial of Service Attacks} - It is not the goal to prevent systems from these kinds of attacks. Since TEEs themselves do not have preventing measures includet. 
     \item \textbf{Hardware} - The implementation of Narrator-Pro should neader require any hardware changes nor will there be a need of specific hardware if the cloud TEE is already running. 
-    \item \textbf{No Trusted Central Party}
+    \item \textbf{No Trusted Central Party} - ... 
+    \item \textbf{}
 \end{itemize} 
 
 The main concepts which constitute in the reliance of Narrator-Pro are (1) system initialization §..., (2) state update and read protocols for AEs §... and (3) restart protocols in regard to AEs and SEs §....
@@ -33,9 +34,35 @@ The SE on the other hand, has to go through additional steps to finish its initi
 
 \subsubsection{State Update and Read}
 
-To prevent eavs droping from adversaries, messages between AEs and SEs are transmitted over encrypted channels, using secret session keys. An AE will use an aforementioned group of SEs to confirm its current state \(S_i\), before proceeding with input \(I_i\) to update to \(S_{i+1}\). A nonce (Number used once) is send as well to prevent replays. The following paragraphs will explain this procedur further (\(SD_{i}\) is a summary of the latest states):
+
+To start this section its essential to mention that Narrator-Pro considers a distributet system if it atleast holds \textit{n} = 2\textit{f} + 1 SGX-enabled machines in a cloud. Where \textit{f} is the number of faulty SEs, so the system can still properly work.
+
+To prevent eavs droping from adversaries, messages between AEs and SEs are transmitted over encrypted channels, using secret session keys. A nonce (Number used once) is send as well to prevent replays. An AE will use an aforementioned group of SEs to confirm its current state \(S_i\), before proceeding with input \(I_i\) to update to \(S_{i+1}\). The following paragraphs will explain this procedur further (\(SD_{i}\) is called the state digest which is a summary of the latest states):
 
 \begin{enumerate}
-    \item After recieving \(I_i\) from an user, the AE saves an state snapshot <\(S_i\), \(I_i\), \(SD_{i-1}\)> on the disk, in case the process crashes midway, so the current input/state can be retrieved. The AEs next step is to call the funktion (\textbf{writeState(\(SD_i\))} -> ACK) and wait for the returning ACK from the SE, to proceed with the state update.
-    \item With calling the \textbf{writeState()} function, the SE saves an snapshot of its own states, containing <\(S_j\), \(I_j\), \(SD_j\)> with \(I_j\) = \(SD_{i}\). Upon a successfull save, the SE starts communicating with its group by 
+    \item \textbf{Input} - After recieving \(I_i\) from an user, the AE saves an state snapshot <\(S_i\), \(I_i\), \(SD_{i-1}\)> on the disk, in case the process crashes midway, so the current input/state can be retrieved. The AEs next step is to call the funktion (\textbf{writeState(\(SD_i\))} -> ACK) and wait for the returning ACK from the SE, to proceed with the state update.
+    \item \textbf{writeState()} - With calling the \textbf{writeState()} function, the SE saves an snapshot of its own states, containing <\(S_j\), \(I_j\), \(SD_{j-1}\)> with \(I_j\) = \(SD_{i}\). Upon a successfull save, the SE starts communicating with its group by sending a PREPARE message <Prepare, \(SD_{j}\), (\textit{j}, \textit{seq})> to all SEs.
+    \item \textbf{PREPARE message} - Recieving a PREPARE message triggers the SE to update the sending SEs state digest in the memory. Consequently an ECHO message is sent, containing  \(SD_{j}\), signaling a successfull upadte to the sending SE. Upon recieving \textit{f} + 1 ECHO messages, the inital SE adds the new state \(S_{i+1}\) to \(I_{j+1}\) and sends an ACK to the AE, which triggers the evolvation to \(S_{i+1}\) and the corresponding output to the user.
 \end{enumerate}
+
+An similar approach is used when an AE wants to verify the freshness of its current state. It calls the \textbf{readState()} function of its connected SE. The target SE, however, can not just return its current state digest (containing the latest states, with the freshest on top)
+since due to a forking attack there could be more then one instance of this SE, holding stale state digests. So the creators of Narrator-Pro developed a sequence this SE has to run through, to verify its freshness:
+\begin{enumerate}
+    \item After calling \textbf{readState()} the target SE sends a request to all SEs in the group to obtain their saved state digests.
+    \item Each SE then sends back the saved state digest, corresponding to the target SE, since every SE holds a list of all SEs state digests, in the group.
+    \item The target SE has to reciev at least \textit{f} + 1 replies, where the state digest is the same as its, to be able to return it to the AE. Otherwise is has to collect the seald data from the OS to resume its latest state. //Meaning??//
+\end{enumerate}
+
+
+\subsubsection{Restart Protocol}
+
+
+
+// give a simple summary of the Restart Protocol?
+
+
+// TO end this section, give a small summary about the counter measures Narrator-Pro delivers?
+
+
+\subsection{Cache-based channel against Forking Attacks - CloneBusters}
+
