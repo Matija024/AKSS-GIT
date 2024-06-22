@@ -1,6 +1,9 @@
+
+
 \documentclass[sigconf]{acmart}
 \renewcommand\footnotetextcopyrightpermission[1]{}
 \usepackage{graphicx}
+\usepackage{titlesec}
 \title{Forking Attacks: Two Ways, No Worries}
 \author{Matija Roncevic}
 \email{matija.roncevic@fau.de}
@@ -18,15 +21,21 @@
 \bibliographystyle{plain}
 
 \setlength{\parindent}{0pt} %%stoppt die Einrückung
-     
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
 \begin{document}
 
 \maketitle  % Dieser Befehl erzeugt den Titel, Autor und Datum im Dokument
 
-%%Für die Seitennummerierung
-\thispagestyle{plain} %%damit auch die erste seite eine 1 hat
-\pagenumbering{arabic}
-\pagestyle{plain} %%???
+
+\acmConference[FAU]{Bal bal bla}{June 2020}{Erlangen, Germany}
+
+%%%%Für die Seitennummerierung
+%%\thispagestyle{plain} %%damit auch die erste seite eine 1 hat
+%%\pagenumbering{arabic}
+%%\pagestyle{plain} %%???
 
 \input{0-Abstract.tex}
 
