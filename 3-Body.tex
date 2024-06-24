@@ -56,12 +56,12 @@ since due to a forking attack there could be more than one instance of this SE, 
 
 \subsubsection{Restart Protocol}
 
+// give a simple summary of the Restart Protocol
+\\
 
 
-// give a simple summary of the Restart Protocol?
 
-
-// To end this section, give a small summary about the counter measures/last 3 sections, Narrator-Pro delivers?
+// To end 4.1, give a small summary about the counter measures/last 3 sections, Narrator-Pro delivers?
 
 
 \subsection{Cache-based Channel - CloneBusters}
@@ -75,13 +75,11 @@ The uniqueness of CloneBusters is the resignation of reliance on a Trusted Third
 
 There was a vulnerability left out in the above definition of clones and the explanation of the \textit{"inc-then-store"} mode. Immagin one enclave E, its clone E', and a malicious OS that created that clone and is in control of the execution order of E and E'. Both enclaves will start with the same MC value (which is global) and loaded binary. In order to process Input \(I_1\), E increments MC once, however is then paused through the OS. The OS then feeds \(I_2\) to E' which also increments MC, leading MC to be +2. After that, the enclaves can proceed simultaneously since they will execute \textbf{Read(MC)} and receive the same value but arrive at different outputs which will be stored with the same index leading to a violation of the given rollback attack prevention from SGX. Therefore CloneBusters developed a strategy to detect clones as they try to operate parallel to its enclave. The implementation of communication through already available cache-sets enables CloneBusters to not rely on a TTP. This is accomplished by two phases which have to be executed, (1) the preparation phase and (2) the monitoring phase. The group of cache sets, i.e. the channel, is developed in (1) to enable phase (2) to monitor this channel where every enclave with the same binary (the enclave and its clones) will put its data in so a classification algorithm can check cache hits and misses to detect clones which will inevitably oust the data from the original enclave with its signed data.
 
----------------------------------- Grammarly checked ---------------------------------------
-
-
 \subsubsection{Preparation Phase (1)}
-In order to assign cache sets to enclaves the creators of CloneBusters evalutated the physical addresses (16 Bits) of the system and came to an conclusion that these sets are best to be indexed by bits 6-15. This leaves a total of 16 cache sets which are used for a channel of an enclave. In the paper they show that this is the perfect size for encalves to detect the presens of clones, whitout providing the OS a chance to temper with that //different wording//. 
-After determining the rigth quantity, eviction sets have to be allocated in order to finalize the channels in which the enclaves will communicate in. The encalves should have eviction sets where the memory is contiguous,howevery the OS has the power to assign non-contiguous memory. In order avoid this happening //different wording//, the creators developed an algorithm to create the eviction sets properly. The algorithm and its method of operation can be detailed in the paper.
+In order to assign cache sets to enclaves the creators of CloneBusters evaluated the physical addresses (16 Bits) of the system and concluded that these sets are best to be indexed by bits 6-15. This leaves a total of 16 cache sets which are used for a channel of an enclave. In the paper, they show that this is the perfect size for encalves to detect the presence of clones, without providing the OS a chance to temper with that //different wording//. 
+After determining the right quantity, eviction sets have to be allocated to finalize the channels in which the enclaves will communicate in. The enclaves should have eviction sets where the memory is contiguous, however, the OS has the power to assign non-contiguous memory. In order to avoid this happening //different wording//, the creators developed an algorithm to create the eviction sets properly. The algorithm and its method of operation can be detailed in the paper.
 
 \subsubsection{Monitoring Phase (2)}
-With the establishment of the eviction sets the enclaves can start operating. CloneBusters has to run continuously while a critical phase is executed(e.g. while incrementing and reading the MC), to provide optimal security. Before entering the \textit{"inc-then-store"} section, the enclave has to pre-fetch, the data to be monitored, into the cache set to provide expressive reliance of CloneBusters. 
-The monitoring is done by measuring the time to access data on the cache. This data is then forwarded to a classification algorithm. With a pre-defined threshold of what time it takes to access eather cache hits or cache misses, the algorithm can  distinguish hits and misses and therby determine of a clone is running. This information is the passed back to the enclave to take appropriate counter measures like holding the execution of the enclave.
+With the establishment of the eviction sets the enclaves can start operating. CloneBusters has to run continuously while a critical phase is executed(e.g. while incrementing and reading the MC), to provide optimal security. Before entering the \textit{"inc-then-store"} section, the enclave has to pre-fetch, the data to be monitored, into the cache set to provide expressive reliance on CloneBusters. 
+The monitoring is done by measuring the time to access data on the cache. This data is then forwarded to a classification algorithm. With a pre-defined threshold of what time it takes to access either cache hits or cache misses, the algorithm can distinguish hits and misses and then determine if a clone is running. This information is then passed back to the enclave to take appropriate countermeasures like holding the execution of the enclave.\\
+---------------------------------- Grammarly checked ---------------------------------------
