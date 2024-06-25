@@ -16,15 +16,15 @@ The creators also state a few ...(premises) which Narrator-Pro does.
 \begin{itemize}
     \item \textbf{Denial of Service Attacks} - It is not the goal to prevent systems from these kinds of attacks. Since TEEs themselves do not have prevention measures included.  
     \item \textbf{Hardware} - The implementation of Narrator-Pro should neither require any hardware changes nor will there be a need for specific hardware if the cloud TEE is already running.  
-    \item \textbf{No Trusted Central Party} - ... 
+    \item \textbf{No Trusted Central Party} - Narrator-Pro does not rely on Trusted central parties, like trusted servers. However, since an external blockchain is used to initialize the system the creators can not state that their system does not rely on Trusted Third Parties.
     \item \textbf{}
 \end{itemize} 
 
-The main concepts which constitute the reliance of Narrator-Pro are (1) system initialization §..., (2) state update and read protocols for AEs §... and (3) restart protocols regarding AEs and SEs §....
+The main concepts which constitute the reliance of Narrator-Pro are (1) system initialization §4.1.1, (2) state update and read protocols for AEs §4.1.2 and (3) restart protocols regarding AEs and SEs §4.1.3.
 
 \subsubsection{System Initialization}
 
-Before the system can proceed with its actual work //different Word//, it is essential to initialize the SEs. Any adversaries will not be able to launch SEs with the same binary on different channels to get stale states. This is accomplished by the usage of a blockchain \textit{B}. 
+Before the system can proceed with its actual work //different Word//, it is essential to initialize the SEs. Adversaries will not be able to launch SEs with the same binary on different channels to get stale states. This is accomplished by the usage of a blockchain \textit{B}. 
 
 The blockchain \textit{B} serves to store key-value tuples containing <\textit{key}, \textit{value}>. The \textit{value} is a random string linked to the \textit{key}, which will be returned by the blockchain in future read-calls. 
 //However to verify the recieved \textit{value}, \textit{B} proviedes an authenticator \textit{a} in the initialization process.The second section, where an authenticator \textit{a} is returned, is while initialization//Important??// 
@@ -37,12 +37,12 @@ The SE on the other hand, has to go through additional steps to finish its initi
 
 To start this section it's essential to mention that Narrator-Pro considers a distributed system if it at least holds \textit{n} = 2\textit{f} + 1 SGX-enabled machines in a cloud. Where \textit{f} is the number of faulty SEs, so the system can still properly work.
 
-To prevent eavs dropping from adversaries, messages between AEs and SEs are transmitted over encrypted channels, using secret session keys. A nonce (Number used once) is sent as well to prevent replays. An AE will use an aforementioned group of SEs to confirm its current state \(S_i\), before proceeding with input \(I_i\) to update to \(S_{i+1}\). The following paragraphs will explain this procedure further (\(SD_{i}\) is called the state digest which is a summary of the latest states):
+To prevent eavs dropping from adversaries, messages between AEs and SEs are transmitted over encrypted channels, using secret session keys. A nonce (Number used once) is sent as well to prevent replays. An AE will use an aforementioned group of SEs to confirm its current state \(S_i\), before proceeding with input \(I_i\) to update to \(S_{i+1}\). The following paragraphs will explain this procedure further (\(SD_{i}\) refers to the state digest, which is a summary of the latest states):
 
 \begin{enumerate}
     \item \textbf{Input} - After receiving \(I_i\) from a user, the AE saves a state snapshot <\(S_i\), \(I_i\), \(SD_{i-1}\)> on the disk, in case the process crashes midway, so the current input/state can be retrieved. The AEs next step is to call the function (\textbf{writeState(\(SD_i\))} -> ACK) and wait for the returning ACK from the SE, to proceed with the state update.
-    \item \textbf{writeState()} - With calling the \textbf{writeState()} function, the SE saves a snapshot of its states, containing <\(S_j\), \(I_j\), \(SD_{j-1}\)> with \(I_j\) = \(SD_{i}\). Upon a successful save, the SE starts communicating with its group by sending a PREPARE message <Prepare, \(SD_{j}\), (\textit{j}, \textit{seq})> to all SEs.
-    \item \textbf{PREPARE message} - Receiving a PREPARE message triggers the SE to update the sending SE state digest in the memory. Consequently, an ECHO message is sent, containing  \(SD_{j}\), signaling a successful update to the sending SE. Upon receiving \textit{f} + 1 ECHO messages, the initial SE adds the new state \(S_{i+1}\) to \(I_{j+1}\) and sends an ACK to the AE, which triggers the evaluation to \(S_{i+1}\) and the corresponding output to the user.
+    \item \textbf{writeState()} - With calling the \textbf{writeState()} function, the SE saves a snapshot of its states, containing <\(S_j\), \(I_j\), \(SD_{j-1}\)> with \(I_j\) = \(SD_{i}\). Upon a successful save, the SE starts communicating with its group by sending a PREPARE message <Prepare, \(SD_{j}\), (\textit{j}, \textit{seq})> to all SEs. The tuple <(\textit{j}, \textit{seq})> will be used in §4.1.3 for a rebooting SE to indicate if an enclave is active or was displaced by its clone.
+    \item \textbf{PREPARE message} - Receiving a PREPARE message triggers the SE to update the sending SEs state digest in their memory. Consequently, an ECHO message is sent, containing \(SD_{j}\), signaling a successful update to the sending SE. Upon receiving \textit{f} + 1 ECHO messages, the initial SE adds the new state \(S_{i+1}\) to \(SD_{j+1}\) and sends an ACK to the AE. It then will advance its state to \(S_{i+1}\) and sent the corresponding output to the user.
 \end{enumerate}
 
 A similar approach is used when an AE wants to verify the freshness of its current state. It calls the \textbf{readState()} function of its connected SE. The target SE, however, can not just return its current state digest (containing the latest states, with the freshest on top)
@@ -55,13 +55,11 @@ since due to a forking attack there could be more than one instance of this SE, 
 
 
 \subsubsection{Restart Protocol}
+The last vulnerability that was discovered by the creators of Narrator-Pro is while an SE reboots and reconnects to its group, an adversary can leverage the group to perform a certain sequence, to enable forking and/or rollback attacks. This fact is best explained with an example. Consider three SEs \(S_{1}\), \(S_{2}\) and \(S_{3}\). With cloning \(S_{1}\) -> \(S'_{1}\) and \(S_{2}\) -> \(S'_{2}\) the initial enclaves will be displaced in the group by its copies, leaving \(S_{1}\) and \(S_{2}\) to be inactive. \(S_{3}\) will now communicate with the clones. However, the enclaves \(S_{1}\) and \(S_{2}\) do not know that they are inactive since the initial algorithm does not involve the necessity for the enclaves to know that they were displaced. This enables a copy of \(S_{3}\) -> \(S'_{3}\) to link to \(S_{1}\) and \(S_{2}\). This now leaves two groups, \textit{G1} and \textit{G2} of SEs. An adversary can now increment the MC with \textit{G1} and perform some actions leaving \textit{G2} with the old value of MC and thereby rolling back the application. Or feed to different inputs to \(S_{3}\) and \(S'_{3}\) and receive different outputs with 2 groups which have, respectfully the same binary, enabling a forking attack.\\
+In order to prevent a system from performing this kind of sequence, the creators of Narrator-Pro included an intermediate step where an SE has to be confirmed by its group that at least \textit{f} SEs are not inactive, when reconnecting. This is accomplished by the tuple <(\textit{j}, \textit{seq})>, which is sent along with the \textbf{PREPARE messages}, where the index \textit{j} refers to the freshness of its state digest and \textit{seq} is used to distinguish different state digests with the same index.\\
+\\ 
 
-// give a simple summary of the Restart Protocol
-\\
-
-
-
-// To end 4.1, give a small summary about the counter measures/last 3 sections, Narrator-Pro delivers?
+//summarise the 3 main concepts?//
 
 
 \subsection{Cache-based Channel - CloneBusters}
