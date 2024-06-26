@@ -3,7 +3,8 @@ The following section will provide further knowledge about different aspects, co
 
 \subsection{Trusted Execution Environment, TEE}
 
-TEEs aim to increase the safeness of data and exacerbate the tempering with crucial code sections, by allowing the processor to have protection through different implementations like the Intel SGX enclave system. The processor is provided with several memory areas which are ensured to be separate and safe from unauthorized access. This memory space is either detached by hardware or by software provided by Intel SGX.
+TEEs are designed to increace data security and prevent tampering with critical code sections. They achieve this by applying various protective mechanisms, such as the Intel SGX enclave system. The processor is, in those systems, provided with several memory areas which are ensured to be separate and safe from unauthorized access. This memory space is either detached by hardware or by software provided by Intel SGX. Sections of a program that execute critical operations, such as incrementing essential counters, are executed within these protected environments to ensure their security.
+Furthermore, adversaries can not read or modify data saved inside this memory since it is encrypted.
 
 \subsection{Attacks}
 
