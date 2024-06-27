@@ -6,21 +6,23 @@ The following section will provide further knowledge about different aspects, co
 TEEs are designed to increace data security and prevent tampering with critical code sections. They achieve this by applying various protective mechanisms, such as the Intel SGX enclave system. The processor is, in those systems, provided with several memory areas which are ensured to be separate and safe from unauthorized access. This memory space is either detached by hardware or by software provided by Intel SGX. Sections of a program that execute critical operations, such as incrementing essential counters, are executed within these protected environments to ensure their security.
 Furthermore, adversaries can not read or modify data saved inside this memory since it is encrypted.
 
-\subsection{Attacks}
+\subsection{Intel SGX Attacks}
+\newcommand{\subhead}[1]{\vspace{1pt}
+\noindent{\textbf{#1.}}}
 
-This paper aims to provide an overview of two methods to protect systems against forking attacks. However, the creators of those systems also included further attacks which we want to mention as well. These attacks come along when talking about forking and enclaves.
+This paper aims to provide an overview of two methods to protect systems against forking attacks. Since further attacks were discussed in the papers as well we wanted to give an overview about them. Those also come along when talking about forking and enclaves.
 
-\subsubsection{Denial of Service (DoS) Attacks}
-These attacks differ from the following attacks since the goal here is not to force the system to outputs that deliver advantages to the adversary by feeding in special inputs or launching several instances. DoS attacks rather overflow the system to disable services or downgrade service performance until the system shuts down and, as the name states, deny the completion of certain services~\cite{DoS}.
+\subhead{Denial of Service (DoS) Attacks}
+These attacks differ from the following since the goal here is not to force the system to outputs that deliver advantages to the adversary by feeding in special inputs or launching several instances. DoS attacks rather overflow the system to disable services or downgrade service performance until the system shuts down and, as the name states, deny the completion of certain services~\cite{DoS}.
 
-\subsubsection{Rollback Attacks}
+\subhead{Rollback Attacks}
 Almost any system with a lifecycle can be rolled back to an outdated state, so an attacker can exploit the output to their advantage. Encalves are not the only targets for those kinds of attacks, VM for example are vulnerable to snapshots. These snapshots can be saved if e.g. certain restrictions on participants are not yet assigned and if needed this snapshot can be executed so this participant can bypass security measures and read information that it should not have access to~\cite{Rollback}. 
 
-\subsubsection{Forking Attacks}
+\subhead{Forking Attacks}
 When an adversary creates several clones of an instance (e.g. an enclave) and launches them into the system, it is labeled as a forking attack. This attack exploits some vulnerabilities that are delivered, e.g. if these clones then try to connect again to the group in which its origin instance is running, it enables the clone to link to other groups as well, as discussed in §4.1.3. 
 To show the connections between forking and rollback attacks it is important to mention that rollback attacks are often performed on clones of a forking attack. Since the clones deliver the opportunity to feed them stale inputs to receive outputs that bypass different security measures, like limited password attempts. So due to the connection of both attacks, the prevention of forking attacks leads to a certain prevention of rollback attacks as well. \\
 
-DoS Attacks, on the other hand, are not aimed to be prevented by both methods, as stated later on. However, we decided to include the definition as well since they are discussed after all. \\
+DoS Attacks, on the other hand, are not aimed to be prevented by both methods, as stated later on. The following sections will introduce two ways to mitigate forking attacks. Each method has its implementations for tackling the challenges, thereby bringing advantages, disadvantages, and preferable fields of application.
 
 
 ---------------------------------- Grammarly checked ---------------------------------------
