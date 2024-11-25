@@ -3,8 +3,7 @@ The following section will provide further knowledge about different aspects, co
 
 \subsection{Trusted Execution Environment, TEE}
 
-TEEs are designed to increase data security and prevent tampering with critical code sections. They achieve this by applying various protective mechanisms, such as the Intel SGX enclave system. The processor is, in those systems, provided with several memory areas that are ensured to be separate and safe from unauthorized access. This memory space is either detached by hardware or by software provided by Intel SGX. Sections of a program that execute critical operations, such as incrementing essential counters, are executed within these protected environments to ensure their security.
-Furthermore, adversaries can not read or modify data saved inside this memory since it is encrypted.
+TEEs are designed to increase data security and prevent tampering with critical code sections. They achieve this by applying various protective mechanisms, such as the Intel SGX enclave system. The processor is, in those systems, provided with several memory areas that are ensured to be separate and safe from unauthorized access. This memory space is either detached by hardware or by software provided by SGX. Sections of a program that execute critical operations, such as incrementing essential counters, are executed within these protected environments to ensure their security. Furthermore, adversaries can not read or modify data saved inside this memory since it is encrypted.
 
 \subsection{Intel SGX Attacks}
 \newcommand{\subhead}[1]{\vspace{1pt}
@@ -16,7 +15,7 @@ This paper aims to provide an overview to protect systems against forking attack
 These attacks differ from the following since the goal here is not to force the system to outputs that deliver advantages to the adversary by feeding in special inputs or launching several instances. DoS attacks rather overflow the system to disable services or downgrade service performance until the system shuts down and, as the name states, deny the completion of certain services~\cite{DoS}.
 
 \subhead{Rollback Attacks}
-Almost any system with a lifecycle can be rolled back to an outdated state, so an attacker can exploit the output to their advantage. Encalves are not the only targets for those kinds of attacks, VM for example are vulnerable to snapshots. These snapshots can be saved if e.g. certain restrictions on participants are not yet assigned and if needed this snapshot can be executed so this participant can bypass security measures and read information that it should not have access to~\cite{Rollback}. 
+Almost any system with a lifecycle can be rolled back to an outdated state, so an attacker can exploit the output to their advantage. Encalves are not the only targets for those kinds of attacks, VMs for example are vulnerable to snapshots. These snapshots can be saved if e.g. certain restrictions on participants are not yet assigned and if needed this snapshot can be executed so this participant can bypass security measures and read information that it should not have access to~\cite{Rollback}. 
 
 \subhead{Forking Attacks}
 When an adversary creates several clones of an instance (i.e. an enclave) and launches them into the system, it is labeled as a forking attack. This attack exploits some vulnerabilities that are delivered, e.g. if these clones then try to connect again to the group in which its origin instance is running, it enables the clone to link to other groups as well, as discussed in §4.3. 
